@@ -94,6 +94,9 @@ function playSection(i) {
   subEl.innerHTML = "";
   spans.forEach(sp => subEl.appendChild(sp));
   showScene(i);
+  // 配乐分段切换：前四段 A 曲，后六段 B 曲（不是一首从头放到尾）
+  const want = i < 4 ? "assets/bgm/bgm_calm_a.mp3" : "assets/bgm/bgm_calm_b.mp3";
+  if (!bgm.src.endsWith(want)) { bgm.src = want; bgm.currentTime = 0; if (playing) bgm.play().catch(() => {}); }
   statusEl.textContent = `第 ${i + 1}/10 段`;
 
   const tick = () => {
