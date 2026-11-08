@@ -1,0 +1,154 @@
+你去全面看一下现在QQBOT那边的具体参数，各方面的，还有机器人人格和记忆方面的情况，然后完整输出详细输出告诉我
+14:58
+
+已完成
+已完成，用时 3分18秒
+思考
+用户要全面检查 QQ bot 的配置、人格、记忆，然后完整详细输出。
+写入
+_dump_bot.py
+1KB
++30 -0
+运行命令
+Dump full qq-bot config block
+思考
+抓到的是 whale-pet 的块，不是 dsh-qq-bot。我的 find 逻辑错了：`rfind('\n- id:', 0, i)` 找到的是 whale-pet 的开始，因为 dsh-qq-bot 在更后面。
+运行命令
+Find the qq-bot plugin declaration line
+写入
+_dump2.py
+1KB
++23 -0
+运行命令
+Dump qq-bot config from line 254
+思考
+配置全部拿到了。但有些字段被设置服务重写时省略了（默认值不写）。比如 history、perGroupContext、fixedName 等我在 yaml 里写过但没显示——可能被清理或者显示在别的段落。
+运行命令
+Check if history and perGroupContext survived
+思考
+- history 还在（L663-665），只是不在 dsh-qq-bot 块里——它在 L663，而 dsh-qq-bot 从 L254 开始。所以 history 在另一个插件块里？不对，可能是缩进不同导致我的 dump 截断了。
+写入
+_dump3.py
+1KB
++33 -0
+运行命令
+Check block boundaries, persona sections, perGroupContext schema
+思考
+确认：
+失败
+运行命令
+List code patches and engram DB stats
+退出码 1
+写入
+_eng.py
+1KB
++20 -0
+运行命令
+Show engram database statistics
+思考
+全部数据齐了。现在写完整报告。
+查完了。全部配置来自 cordis.patch.yml，代码补丁来自 node_modules 时间戳，记忆数据来自 SQLite 直读。
+
+一、连接与权限
+项	值
+协议	onebot11 / forward 模式
+地址	ws 3001 , http 3000
+accessToken	空（仅本机回环）
+preset	minimal + qq-readonly（自定义）
+主人	29*****27（唯一）
+群白名单	9 个群，requireAt = true
+群聊门槛	必须 @ 才回
+私聊	开启，allow 为空 = 不限制
+访客可用工具	31 个：读文件/看图/搜索/qq_*/engram 全套
+
+二、模型路由
+范围	模型	思考档
+默认（兜底）	deepseek-account / deepseek-flash	low
+🤖 3******2	rrx / sensenova-6.8-flash	max
+月之森 59******rrx / sensenova-6.8-flash	max
+HORRIBLE 28*****	rrx / sensenova-6.8-flash	max
+ai下午茶 10******891	rrx / sensenova-6.8-flash	max
+MKS 82*****7	rrx / sensenova-6.8-flash	max
+SLC 102*****919969	rrx / sensenova-6.8-flash	max
+MyGO博物馆 5******	rrx / sensenova-6.8-flash	max
+你的私聊	rrx / sensenova-6.8-flash	max
+别人私聊	rrx / sensenova-6.8-flash	max
+猫窝 98********57	deepseek-account / deepseek-flash	low
+
+三、主动发言
+参数	值	说明
+扫描群	9 个	全部
+间隔	5 分钟	
+窗口	15 条	
+新消息门槛	3 条	不够就跳过
+发言间隔	10 分钟	每群独立
+上限	4 次/时 · 30 次/天	每群独立
+静默时段	无	已清空
+事件闸	开	过气/自己发的跳过
+冷场搭话	关闭	coldAfterMinutes=0
+话题冷却	180 分钟	同一话题不反复接
+群间错峰	4 秒	
+coldGroups 里配了 3 个群，但 coldAfterMinutes=0，所以冷场功能实际是关的。
+
+四、识图 / 五、回复上下文
+项	值
+识图主模型	rrx / sensenova-6.8-flash
+识图备 1	rrx / sensenova-6.8-flash-lite
+识图备 2	deepseek-account / deepseek-flash
+单次最多张数	8
+下载超时	25 秒
+@ 回复识图超时	5 分钟（代码）
+定时扫描识图超时	60 秒（代码）
+上下文条数	12（全局）
+qq_history 识图窗口	30 条 / 最多 5 张
+「正在处理」提示	关闭
+多引擎搜索	webSearch.multiEngine = false
+
+六、人格结构（11,591 字 / 256 行 / 30 节）
+① 来历（鲸鱼梗，不报技术身份）
+② 本地资料库索引（邦邦/说唱/战力/数学 + Downloads 游戏评价）
+③ 底子（睦厨/磕喵睦/听说唱/打游戏，不报菜名）
+④ 语气 + 具体反例
+⑤ 查记忆纪律（省 token）
+⑥ 说话（20 字上限、无句号、无引号、解释也要短）
+⑦ 看消息（分人、分图、别硬音译、不假装看过图）
+⑧ 记忆规则（该记/不该记/怎么用）
+⑨ 别串群
+⑩ 查完资料库怎么说（不转述、不报星级）
+⑪ 说唱行话
+⑫ 战力定级（衡天体系）
+⑬ 兴趣话题先查再说
+⑭ 沉淀记忆
+⑮ 多想一想
+⑯ 保密红线（约 1900 字）
+⑰ 发言安全（政治/色情/违法三条红线）
+⑱ 铁律（自检）
+
+七、记忆库（SQLite 直读）
+库	活跃条	实体	事实	谁在用
+project-f0289647	201	61	89	QQ bot 自己的库
+shared	76	14	0	跨工作区可见
+project-4bb24958	79	0	0	邦邦资料
+user	42	28	18	你的全局偏好
+bot 记忆写在自己的 project 库（f028），你在 IDE 里搜不到；跨库可见的只有 shared 那 76 条。
+
+八、代码补丁（10 个文件）
+文件	改动内容
+vision.js	识图链、拒答识别、按模型给 maxTokens、5 分钟超时、通用提示词
+proactive-surface.js	定时识图（markdown 图/file换url/60秒超时/描述缓存）、额度闸后移
+turn-runtime.js	旁白过滤、引用原文、群上下文时间轴、视频标记
+plugin.js	sendReply 诊断、群名缓存、推送图提取
+tools/index.js	qq_history 窗口方向修正、markdown 图、get_image、视频标记
+config.js	sessionProvider/groupModels/guestPrivateModel/perGroupContext/recentContextCount
+manager.js	模型钉死、guest 私聊模型、会话标题保护
+turn-text.js	回合结束原因说人话
+sticker.js	打标 maxTokens
+inbound-limits.js	入站限流
+
+发现的问题
+问题	影响	建议
+perGroupContext 没写进配置	按群设上下文条数不生效，全用 12	要用的话我补上
+coldGroups 配了但 coldAfterMinutes=0	冷场搭话实际关闭	想开启就设成 30-60
+accessToken 为空	本机回环可接受，外网暴露会有风险	保持 127.0.0.1 即可
+猫窝仍是官方付费	每轮按量计费	你之前定的，理由成立
+人格 11.6K 字	每轮都注入，约 5000 token	内容都有效，暂不建议再砍
